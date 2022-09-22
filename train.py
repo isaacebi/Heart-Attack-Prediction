@@ -69,13 +69,15 @@ model = Pipeline(
         ('lr', LogisticRegression())
     ]
 )
-model
 
 # fit and validate
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
-model.score(X_test, y_test)
+score = model.score(X_test, y_test)
+# Write scores to a file
+with open("metrics.txt", 'w') as outfile:
+        outfile.write("Mean accuracy: %2.1f%%\n" % score)
 
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
