@@ -77,7 +77,7 @@ y_pred = model.predict(X_test)
 score = model.score(X_test, y_test)
 # Write scores to a file
 with open("metrics.txt", 'w') as outfile:
-        outfile.write("Mean accuracy: %2.1f%%\n" % score)
+        outfile.write("Mean accuracy: %.2f%%\n" % score)
 
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
