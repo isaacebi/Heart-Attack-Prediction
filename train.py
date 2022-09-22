@@ -39,7 +39,7 @@ df.drop_duplicates(inplace=True)
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn import set_config
 set_config(display="diagram")
@@ -66,7 +66,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 model = Pipeline(
     [
         ('s_scaler', StandardScaler()),
-        ('lr', LogisticRegression())
+        ('rf', RandomForestClassifier())
     ]
 )
 
@@ -95,9 +95,9 @@ cm_display = ConfusionMatrixDisplay(cm).plot()
 plt.title('Confusion Matrix')
 plt.savefig('confusion_matrix.png', dpi=80)
 
-y_score = model.decision_function(X_test)
+y_score = model.predict_proba(X_test)
 
-fpr, tpr, _ = roc_curve(y_test, y_score, pos_label=model.classes_[1])
+fpr, tpr, _ = roc_curve(y_test, y_score[:,1], pos_label=model.classes_[1])
 roc_display = RocCurveDisplay(fpr=fpr, tpr=tpr).plot()
 plt.title("ROC Curve")
-plt.savefig('ROC_Curve.png', dpi=80)
+plt.savefig('ROC Curve.png', dpi=80)
