@@ -87,7 +87,7 @@ from sklearn.metrics import roc_curve, RocCurveDisplay
 report = classification_report(y_test, y_pred, output_dict=True)
 report = pd.DataFrame(report).transpose()
 report.to_json('metrics.json')
-np.savetxt('metrics.txt', df.values, fmt='%d')
+np.savetxt('metrics.txt', report.values, fmt='%d')
 
 cm = confusion_matrix(y_test, y_pred)
 cm_display = ConfusionMatrixDisplay(cm).plot()
