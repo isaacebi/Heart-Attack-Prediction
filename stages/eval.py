@@ -1,4 +1,5 @@
 import sys
+import os
 from pathlib import Path
 
 src_path = Path(__file__).parent.parent.resolve()
@@ -40,9 +41,8 @@ def eval(data_dir, model_dir, perm_imp_model_path, random_state):
     roc_auc = roc_auc_score(y_test, y_prob)
     live.log_plot("roc", y_test, y_prob)
     
-    preprocessor = model.named_steps['preprocessor']
     clf = model.named_steps['clf']
-    X_test_transformed = preprocessor.transform(X_test)
+    X_test_transformed = X_test
 
     perm = PermutationImportance(clf, 
                                  scoring=make_scorer(f1_score),
@@ -53,7 +53,8 @@ def eval(data_dir, model_dir, perm_imp_model_path, random_state):
                       columns=['feature', 'importance'])
     df_feat_imp = df_feat_imp.sort_values(by='importance', ascending=False)
     df_feat_imp.to_csv('feat_imp.csv', index=False)
-    dump(perm, perm_imp_model_path)
+    
+    # dump(perm, perm_imp_model_path)
     
     metrics = {
         'f1': f1,

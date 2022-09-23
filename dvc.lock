@@ -1,0 +1,115 @@
+schema: '2.0'
+stages:
+  data_split:
+    cmd: python stages/data_split.py --config=params.yaml
+    deps:
+    - path: data/data.csv
+      md5: 0691643e62f74624d19253d61990b74b
+      size: 11323
+    - path: stages/data_split.py
+      md5: 009394e6738deb245ccce76ca05f812f
+      size: 1460
+    params:
+      params.yaml:
+        base:
+          project: heart_attack_prediction
+          data_dir: data
+          data_fname: data.csv
+          targ_col: output
+          random_state: 42
+          model_dir: .mlem/model
+        data_split:
+          test_size: 0.25
+    outs:
+    - path: data/X_test.pkl
+      md5: cb3d40d52910165f9cf2ef510df31178
+      size: 9482
+    - path: data/X_train.pkl
+      md5: 3c477a6402fa3f28f2edc59db7d64b61
+      size: 26394
+    - path: data/y_test.pkl
+      md5: 4f03659c9427ef72fce5a36bb31d4ef8
+      size: 2433
+    - path: data/y_train.pkl
+      md5: 828254c6c89ff526cf8dcedd9292078c
+      size: 6057
+  train:
+    cmd: python stages/train.py --config=params.yaml
+    deps:
+    - path: data/X_train.pkl
+      md5: 3c477a6402fa3f28f2edc59db7d64b61
+      size: 26394
+    - path: data/y_train.pkl
+      md5: 828254c6c89ff526cf8dcedd9292078c
+      size: 6057
+    - path: stages/train.py
+      md5: ea9c8132530613bba0ca3eb7e73e5724
+      size: 1897
+    params:
+      params.yaml:
+        base:
+          project: heart_attack_prediction
+          data_dir: data
+          data_fname: data.csv
+          targ_col: output
+          random_state: 42
+          model_dir: .mlem/model
+        train:
+          model_type: randomforest
+          params:
+            n_estimators: 150
+            max_depth: 15
+    outs:
+    - path: .mlem/model/clf-model
+      md5: 0ed491dd95806f06c74ed34bebc431ba
+      size: 896215
+    - path: .mlem/model/clf-model.mlem
+      md5: 123e44e2192d8c308795aa06c3bbc3e6
+      size: 3685
+  eval:
+    cmd: python stages/eval.py --config=params.yaml
+    deps:
+    - path: .mlem/model/clf-model
+      md5: 0ed491dd95806f06c74ed34bebc431ba
+      size: 896215
+    - path: .mlem/model/clf-model.mlem
+      md5: 123e44e2192d8c308795aa06c3bbc3e6
+      size: 3685
+    - path: data/X_test.pkl
+      md5: cb3d40d52910165f9cf2ef510df31178
+      size: 9482
+    - path: data/y_test.pkl
+      md5: 4f03659c9427ef72fce5a36bb31d4ef8
+      size: 2433
+    - path: stages/eval.py
+      md5: 08746ade08302fff297d5036fde6426b
+      size: 2712
+    params:
+      params.yaml:
+        base:
+          project: heart_attack_prediction
+          data_dir: data
+          data_fname: data.csv
+          targ_col: output
+          random_state: 42
+          model_dir: .mlem/model
+        data_split:
+          test_size: 0.25
+        train:
+          model_type: randomforest
+          params:
+            n_estimators: 150
+            max_depth: 15
+    outs:
+    - path: eval_plots/cm.png
+      md5: e20bd5663ca55b1f3f3ca0da2b1e6c2d
+      size: 11735
+    - path: eval_plots/plots/roc.json
+      md5: e7224a0af08d6ab3cd71c176c367badf
+      size: 4556
+    - path: feat_imp.csv
+      md5: 0d846ae33ad1251bdf0d24482de778ad
+      size: 257
+    - path: metrics.json
+      md5: 16c8cc9a0900fd7e26550074860ddd2e
+      size: 70

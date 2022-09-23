@@ -38,7 +38,6 @@ stages:
       - data_split
       - train
     outs:
-      - ${eval.perm_imp_model_path}
       - feat_imp.csv:
           cache: false
     metrics:
