@@ -1,0 +1,21 @@
+schema: '2.0'
+stages:
+  get_data:
+    cmd: python train.py
+    deps:
+    - path: data/data.csv
+      md5: 0691643e62f74624d19253d61990b74b
+      size: 11323
+    - path: train.py
+      md5: e06b40abf845a73f597dd4278de5d1d6
+      size: 2389
+    outs:
+    - path: ROC_Curve.png
+      md5: d97306b9ca53fb73ac9d707485aab45e
+      size: 11045
+    - path: confusion_matrix.png
+      md5: f9dfde94cefcb87b59896030c20b863a
+      size: 11490
+    - path: metrics.json
+      md5: f50b8e9865c4380844d096ea47c64c92
+      size: 452
