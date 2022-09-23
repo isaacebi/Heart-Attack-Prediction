@@ -14,7 +14,7 @@ jobs:
           GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
         run: |
           pip install -r requirements.txt
-          dvc pull -r filterout --verbose
+          dvc pull -R
           dvc repro
           
           # Create CML report
