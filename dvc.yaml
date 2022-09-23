@@ -3,6 +3,7 @@ stages:
     cmd: python train.py
     deps:
     - train.py
+    - data/data.csv
     outs:
     - metrics.json
     - confusion_matrix.png
