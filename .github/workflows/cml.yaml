@@ -16,7 +16,6 @@ jobs:
           pip install -r requirements.txt
           dvc pull --run-cache
           dvc repro
-          dvc push
           
           # Create CML report
           echo "## Metrics" >> report.md
