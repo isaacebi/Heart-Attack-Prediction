@@ -1,103 +1,64 @@
-##############
-#%% import %%#
-##############
+import sys
+from pathlib import Path
+
+src_path = Path(__file__).parent.parent.resolve()
+sys.path.append(str(src_path))
+
+import argparse
 
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import os
-
-#################
-#%% variables %%#
-#################
-
-# path
-DATA_PATH = os.path.join(os.getcwd(), 'data', 'data.csv')
-
-# random seed
-SEED = 42
-
-####################
-#%% data loading %%#
-####################
-df = pd.read_csv(DATA_PATH)
-df
-
-
-#######################
-#%% data inspection %%#
-#######################
-df.info()
-
-df.describe().T
-
-df.isna().mean()
-
-df.duplicated().sum() # 1 duplicated
-df.drop_duplicates(inplace=True)
-
+from lightgbm import LGBMClassifier
+from mlem.api import save
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn import set_config
-set_config(display="diagram")
-
-#############
-#%% split %%#
-#############
-
-# feature
-X = df.drop(columns=['output'])
-
-# target
-y = df['output']
-
-##################
-#%% train test %%#
-##################
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=SEED)
+from utils.load_params import load_params
+from xgboost import XGBClassifier
 
 
-#########################
-#%% Model Development %%#
-#########################
-model = Pipeline(
-    [
-        ('s_scaler', StandardScaler()),
-        ('lr', LogisticRegression())
-    ]
-)
+def train(data_dir,
+          model_type,
+          random_state,
+          **train_params):
+    X_train = pd.read_pickle(data_dir/'X_train.pkl')
+    y_train = pd.read_pickle(data_dir/'y_train.pkl')
+    
+    if model_type == "randomforest":
+        clf = RandomForestClassifier(random_state=random_state, 
+                                 **train_params)
+    elif model_type == "lightgbm":
+        clf = LGBMClassifier(random_state=random_state, 
+                                    **train_params)
+    elif model_type == "xgboost":
+        clf = XGBClassifier(random_state=random_state, 
+                                    **train_params)
 
-# fit and validate
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+    model = Pipeline(
+        [
+            ('s_scaler', StandardScaler()),
+            ('clf', clf)
+        ]
+    )
+    
+    model.fit(X_train, y_train)
+    save(
+        model,
+        "clf-model",
+        sample_data=X_train,
+        description="Customer Churn Classifier Model",
+    )
 
-score = model.score(X_test, y_test)
-# Write scores to a file
-with open("metrics.txt", 'w') as outfile:
-        outfile.write("Mean accuracy: %.2f%%\n" % score)
-
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from sklearn.metrics import roc_curve, RocCurveDisplay
-
-##################
-#%% Evaluation %%#
-##################
-report = classification_report(y_test, y_pred, output_dict=True)
-report = pd.DataFrame(report).transpose()
-report.to_json('metrics.json')
-
-cm = confusion_matrix(y_test, y_pred)
-cm_display = ConfusionMatrixDisplay(cm).plot()
-plt.title('Confusion Matrix')
-plt.savefig('confusion_matrix.png', dpi=80)
-
-y_score = model.decision_function(X_test)
-
-fpr, tpr, _ = roc_curve(y_test, y_score, pos_label=model.classes_[1])
-roc_display = RocCurveDisplay(fpr=fpr, tpr=tpr).plot()
-plt.title("ROC Curve")
-plt.savefig('ROC_Curve.png', dpi=80)
+if __name__ == '__main__':
+    args_parser = argparse.ArgumentParser()
+    args_parser.add_argument('--config', dest='config', required=True)
+    args = args_parser.parse_args()
+    
+    params = load_params(params_path=args.config)
+    data_dir = Path(params.base.data_dir)
+    random_state = params.base.random_state
+    model_type = params.train.model_type
+    train_params = params.train.params
+    train(data_dir=data_dir,
+          model_type=model_type,
+          random_state=random_state,
+          **train_params)
