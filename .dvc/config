@@ -1,4 +1,7 @@
 [core]
-    remote = data-heart-attack
+    remote = myremote
+    autostage = true
 ['remote "data-heart-attack"']
+    url = gdrive://1qNyRt2vvafGBkMEnXsra-nzKnlMNcyyp
+['remote "myremote"']
     url = gdrive://1qNyRt2vvafGBkMEnXsra-nzKnlMNcyyp
