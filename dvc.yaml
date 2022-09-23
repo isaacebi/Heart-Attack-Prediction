@@ -7,6 +7,3 @@ stages:
     - metrics.json
     - confusion_matrix.png
     - ROC_Curve.png
-    metrics:
-    - metrics.json:
-        cache: false
