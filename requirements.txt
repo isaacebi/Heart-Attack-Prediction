@@ -6,3 +6,4 @@ scikit-learn
 python-box==6.0.1
 mlem
 eli5
+dvclive
